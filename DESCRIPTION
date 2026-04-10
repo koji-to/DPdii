@@ -1,0 +1,21 @@
+Package: DPdii
+Type: Package
+Title: Data Paching Technique Using Delete - Impute Iteration 
+Version: 0.0.1.1
+Author: person("Koji", "Toda", email="toda@fit.ac.jp",role=c("aut","cre"))
+Maintainer: The package maintainer <toda@fit.ac.jp>
+Description: Data Patching using deletion-imputation iteration in R. It combines
+    prodNA (by missForest package) and Multiple Imputation Techniques (Mice and missForest in this 
+    version) to patching (replaceing) unreliable values in dataset. See help text (TBD) to know more information and 
+    procedure of data paching.
+    In this version, dataset mayt be constructed by ONLY numeric veriables.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Imports:
+    mice,
+    missForest
+RoxygenNote: 7.3.3
+Roxygen: list(markdown = TRUE)
+Suggests: 
+    knitr
