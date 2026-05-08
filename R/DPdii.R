@@ -35,7 +35,7 @@ DPdii<-function(data.df, imp="mice", del_rate=0.05, patch_rates=0.1, elim_rates=
     if(imp=="mice"){
       data_mice.mice<-mice::mice(missing.df,seed=i,m=1,printFlag=FALSE,remove.collinear = FALSE)
       imp.df<-mice::complete(data_mice.mice,1)
-    }else if(imp=="missForst"){
+    }else if(imp=="missForest"){
       imp.df<-missForest::missForest(missing.df)$ximp
     }
     if(penl=="ABD"){
