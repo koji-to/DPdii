@@ -26,17 +26,14 @@
 #' @export DPdii
 
 DPdii<-function(data.df, imp="mice", del_rate=0.05, patch_rates=0.1, elim_rates=0.2, iter=1000, penl="SQD"){
-
   out.ls<-NULL
   list_names.ls<-NULL
-
   for(i in 1:iter){
     missing.df<-missForest::prodNA(data.df,noNA=del_rate)
-    is_missing.df<-is.na(missing.df)
     if(imp=="mice"){
       data_mice.mice<-mice::mice(missing.df,seed=i,m=1,printFlag=FALSE,remove.collinear = FALSE)
       imp.df<-mice::complete(data_mice.mice,1)
-    }else if(imp=="missForst"){
+    }else if(imp=="missForest"){
       imp.df<-missForest::missForest(missing.df)$ximp
     }
     if(penl=="ABD"){
@@ -56,16 +53,17 @@ DPdii<-function(data.df, imp="mice", del_rate=0.05, patch_rates=0.1, elim_rates=
         missing_count.df<-missing_count.df+is.na(missing.df)
       }
     }
+    pure_imp.df<-imp.df
+    pure_imp.df[!is.na(missing.df)]<-0
     if(!exists("imp_sum.df")){
-      imp_sum.df<-matrix(0, nrow=nrow(data.df), ncol=ncol(data.df))
-      missing_count.df <- matrix(0, nrow=nrow(data.df), ncol=ncol(data.df))
+      pure_imp_sum.df<-pure_imp.df
+    }else{
+      pure_imp_sum.df<-pure_imp_sum.df+pure_imp.df
     }
-    imp_sum.df[is_missing.df]<-imp_sum.df[is_missing.df] + imp.df[is_missing.df]
-    missing_count.df[is_missing.df]<-missing_count.df[is_missing.df]+1
   }
 
   diff.df<-diff_sum.df/missing_count.df
-  patch.df<-imp_sum.df/missing_count.df
+  patch.df<-pure_imp_sum.df/missing_count.df
   sum_diff.ls<-apply(diff.df,1,sum)
   data.df$rank<-rank(sum_diff.ls)
   patch.df$rank<-data.df$rank
@@ -83,19 +81,19 @@ DPdii<-function(data.df, imp="mice", del_rate=0.05, patch_rates=0.1, elim_rates=
       patch_data.df<-subset(data.df,
                             (data.df$rank>round(nrow(data.df)*(1-(patch_rate+elim_rate))))
                             &
-                            (data.df$rank<=round(nrow(data.df)*(1-elim_rate)))
+                              (data.df$rank<=round(nrow(data.df)*(1-elim_rate)))
       )
 
       patch_replace_check.df<-subset(replace_check.df,
-                                    (replace_check.df$rank>round(nrow(replace_check.df)*(1-(patch_rate+elim_rate))))
-                                    &
-                                    (replace_check.df$rank<=round(nrow(replace_check.df)*(1-elim_rate)))
+                                     (replace_check.df$rank>round(nrow(replace_check.df)*(1-(patch_rate+elim_rate))))
+                                     &
+                                       (replace_check.df$rank<=round(nrow(replace_check.df)*(1-elim_rate)))
       )
 
       patch_patch.df<-subset(patch.df,
-                            (patch.df$rank>round(nrow(patch.df)*(1-(patch_rate+elim_rate))))
-                            &
-                            (patch.df$rank<=round(nrow(patch.df)*(1-elim_rate)))
+                             (patch.df$rank>round(nrow(patch.df)*(1-(patch_rate+elim_rate))))
+                             &
+                               (patch.df$rank<=round(nrow(patch.df)*(1-elim_rate)))
       )
 
       patch_comp.df<-patch_data.df
