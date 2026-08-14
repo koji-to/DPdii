@@ -32,10 +32,11 @@ DPdii<-function(data.df, imp="mice", del_rate=0.05, patch_rates=0.1, elim_rates=
 
   for(i in 1:iter){
     missing.df<-missForest::prodNA(data.df,noNA=del_rate)
+    is_missing.df<-is.na(missing.df)
     if(imp=="mice"){
       data_mice.mice<-mice::mice(missing.df,seed=i,m=1,printFlag=FALSE,remove.collinear = FALSE)
       imp.df<-mice::complete(data_mice.mice,1)
-    }else if(imp=="missForest"){
+    }else if(imp=="missForst"){
       imp.df<-missForest::missForest(missing.df)$ximp
     }
     if(penl=="ABD"){
@@ -56,10 +57,11 @@ DPdii<-function(data.df, imp="mice", del_rate=0.05, patch_rates=0.1, elim_rates=
       }
     }
     if(!exists("imp_sum.df")){
-      imp_sum.df<-imp.df
-    }else{
-      imp_sum.df<-imp_sum.df+imp.df
+      imp_sum.df<-matrix(0, nrow=nrow(data.df), ncol=ncol(data.df))
+      missing_count.df <- matrix(0, nrow=nrow(data.df), ncol=ncol(data.df))
     }
+    imp_sum.df[is_missing.df]<-imp_sum.df[is_missing.df] + imp.df[is_missing.df]
+    missing_count.df[is_missing.df]<-missing_count.df[is_missing.df]+1
   }
 
   diff.df<-diff_sum.df/missing_count.df
