@@ -1,7 +1,7 @@
 Package: DPdii
 Type: Package
 Title: Data Paching Technique Using Delete - Impute Iteration 
-Version: 0.0.1.3
+Version: 0.0.1.4
 Author: person("Koji", "Toda", email="toda@fit.ac.jp",role=c("aut","cre"))
 Maintainer: The package maintainer <toda@fit.ac.jp>
 Description: Data Patching using deletion-imputation iteration in R. It combines

@@ -28,6 +28,13 @@
 DPdii<-function(data.df, imp="mice", del_rate=0.05, patch_rates=0.1, elim_rates=0.2, iter=1000, penl="SQD"){
   out.ls<-NULL
   list_names.ls<-NULL
+  imp.df<-NULL
+
+  zero.df <- as.data.frame(matrix(0, nrow = nrow(data.df), ncol = ncol(data.df), dimnames = list(rownames(data.df), names(data.df))))
+  diff_sum.df       <- zero.df
+  pure_imp_sum.df   <- zero.df
+  missing_count.df  <- zero.df
+
   for(i in 1:iter){
     missing.df<-missForest::prodNA(data.df,noNA=del_rate)
     if(imp=="mice"){
@@ -37,29 +44,15 @@ DPdii<-function(data.df, imp="mice", del_rate=0.05, patch_rates=0.1, elim_rates=
       imp.df<-missForest::missForest(missing.df)$ximp
     }
     if(penl=="ABD"){
-      if(!exists("diff_sum.df")){#absolute difference
-        diff_sum.df<-abs(data.df-imp.df)
-        missing_count.df<-is.na(missing.df)
-      }else{
-        diff_sum.df<-diff_sum.df+abs(data.df-imp.df)
-        missing_count.df<-missing_count.df+is.na(missing.df)
-      }
+      diff_sum.df<-diff_sum.df+abs(data.df-imp.df)
+      missing_count.df<-is.na(missing.df)+missing_count.df
     }else if(penl=="SQD"){#squared difference
-      if(!exists("diff_sum.df")){
-        diff_sum.df<-(data.df-imp.df)^2
-        missing_count.df<-is.na(missing.df)
-      }else{
-        diff_sum.df<-diff_sum.df+abs(data.df-imp.df)^2
-        missing_count.df<-missing_count.df+is.na(missing.df)
-      }
+      diff_sum.df<-diff_sum.df+abs(data.df-imp.df)^2
+      missing_count.df<-missing_count.df+is.na(missing.df)
     }
     pure_imp.df<-imp.df
     pure_imp.df[!is.na(missing.df)]<-0
-    if(!exists("imp_sum.df")){
-      pure_imp_sum.df<-pure_imp.df
-    }else{
-      pure_imp_sum.df<-pure_imp_sum.df+pure_imp.df
-    }
+    pure_imp_sum.df<-pure_imp_sum.df+pure_imp.df
   }
 
   diff.df<-diff_sum.df/missing_count.df
